@@ -44,7 +44,7 @@ const app = (initialState = {}) => {
 
     validate(url, state.currentFeeds)
       .then((result) => {
-        axios.get(result).then(console.log);
+        axios.get(result).then(console.log).catch(console.log);
         state.form.errors = [];
         state.form.valid = true;
         watchedState.currentFeeds = [...watchedState.currentFeeds, result];
