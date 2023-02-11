@@ -1,5 +1,5 @@
 const renderError = (elements, value) => {
-	const error = value[0].message;
+	const error = value[0];
 	elements.urlInput.classList.add('is-invalid');
 	elements.feedback.textContent = error;
 };
