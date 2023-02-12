@@ -6,7 +6,7 @@ env:
 
 extends:
   - airbnb-base
-  - prettier
+  - plugin:prettier/recommended
 plugins: [prettier]
 overrides: []
 parserOptions:
