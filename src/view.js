@@ -29,8 +29,8 @@ const renderFeeds = (elements, state, i18nInstance) => {
   const postsListGroup = elements.postsContainer.querySelector('.list-group');
   state.feeds.forEach((feed) => {
     const currentFeedId = feed.id;
-    const [posts] = state.posts.filter(({ id }) => id === currentFeedId);
-    posts.posts.forEach((post) => {
+    const posts = state.posts.filter(({ feedId }) => feedId === currentFeedId);
+    posts.forEach((post) => {
       const li = document.createElement('li');
       li.classList.add(
         'list-group-item',
@@ -58,7 +58,8 @@ const render = (state, elements, i18nInstance) => (path, value) => {
       renderError(elements, value);
       break;
     }
-    case 'feeds': {
+    case 'feeds':
+    case 'posts': {
       renderFeeds(elements, state, i18nInstance);
       break;
     }
