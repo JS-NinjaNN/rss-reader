@@ -5,9 +5,10 @@ yup.setLocale({
   string: { url: 'errors.invalidUrl' },
 });
 
-const buildSchema = (data) =>
-  yup.string().trim().required().url().notOneOf(data);
-
+const buildSchema = (data) => {
+  const links = data.feeds.map(({ url }) => url);
+  return yup.string().trim().required().url().notOneOf(links);
+};
 const validate = (url, data) => buildSchema(data).validate(url);
 
 export default validate;
