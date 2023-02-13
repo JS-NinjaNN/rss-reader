@@ -1,5 +1,3 @@
----
-root: true
 env:
   browser: true
   es2021: true
@@ -19,13 +17,4 @@ rules:
     - ignorePackages
     - js: always
   no-underscore-dangle: [2, { 'allow': ['__filename', '__dirname'] }]
-  import/no-extraneous-dependencies:
-    [
-      error,
-      {
-        devDependencies: false,
-        optionalDependencies: false,
-        peerDependencies: false,
-      },
-    ]
   prettier/prettier: error
