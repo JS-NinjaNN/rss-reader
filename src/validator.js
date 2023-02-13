@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 yup.setLocale({
   mixed: { notOneOf: 'errors.alreadyAddedRSS' },
-  string: { url: 'errors.invalidUrl' },
+  string: { url: 'errors.invalidUrl', required: 'mustNotBeEmpty' },
 });
 
 const buildSchema = (data) => {

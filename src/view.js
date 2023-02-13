@@ -42,7 +42,13 @@ const renderFeeds = (elements, state, i18nInstance) => {
         'border-0',
         'border-end-0'
       );
-      li.innerHTML = `<a href="${post.link}" data-id="${post.postId}" target="_blank" rel="noopener noreferrer">${post.title}</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+      li.innerHTML = `<a href="${post.link}" data-id="${
+        post.postId
+      }" target="_blank" rel="noopener noreferrer">${
+        post.title
+      }</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">${i18nInstance.t(
+        'elements.view'
+      )}</button>`;
       const classesToAdd = state.uiState.modal.includes(post.link)
         ? ['fw-normal', 'link-secondary']
         : ['fw-bold'];

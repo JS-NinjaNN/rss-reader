@@ -149,9 +149,12 @@ const app = (initialState = {}) => {
         watchedState.feeds = [...watchedState.feeds, feed];
       })
       .catch((error) => {
-        console.log(error);
+        const err =
+          error.message === 'Network Error'
+            ? 'errors.networkError'
+            : error.message;
         state.form.valid = false;
-        watchedState.form.errors = [i18nInstance.t(error.message)];
+        watchedState.form.errors = [i18nInstance.t(err)];
       });
   });
   updatePosts(watchedState, i18nInstance);
