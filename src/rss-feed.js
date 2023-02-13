@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements"] }] */
+
 import _ from 'lodash';
 import onChange from 'on-change';
 import i18n from 'i18next';
@@ -27,9 +29,11 @@ const createFeed = (data, i18nInstance, url) => {
   const posts = [...parsedData.querySelectorAll('item')].map((item) => {
     const postLink = item.querySelector('link').textContent;
     const postTitle = item.querySelector('title').textContent;
+    const postDescription = item.querySelector('description').textContent;
     return {
       link: postLink,
       title: postTitle,
+      description: postDescription,
       postId: _.uniqueId(),
       feedId: feed.id,
     };
@@ -58,9 +62,11 @@ const updatePosts = (state, i18nInstance) => {
         const posts = [...parsedData.querySelectorAll('item')].map((item) => {
           const postLink = item.querySelector('link').textContent;
           const postTitle = item.querySelector('title').textContent;
+          const postDescription = item.querySelector('description').textContent;
           return {
             link: postLink,
             title: postTitle,
+            description: postDescription,
             postId: _.uniqueId(),
             feedId: feed.id,
           };
@@ -93,6 +99,9 @@ const app = (initialState = {}) => {
     urlInput: document.querySelector('#url-input'),
     postsContainer: document.querySelector('.posts'),
     feedsContainer: document.querySelector('.feeds'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalDescription: document.querySelector('.text-break'),
+    modalLink: document.querySelector('.full-article'),
   };
 
   const state = {
@@ -103,6 +112,9 @@ const app = (initialState = {}) => {
     },
     feeds: [],
     posts: [],
+    uiState: {
+      modal: [],
+    },
     ...initialState,
   };
 
@@ -117,7 +129,9 @@ const app = (initialState = {}) => {
 
   elements.form.focus();
 
-  const watchedState = onChange(state, render(state, elements, i18nInstance));
+  const watchedState = onChange(state, (path, value) => {
+    render(watchedState, elements, i18nInstance, path, value);
+  });
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
