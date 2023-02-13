@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements"] }] */
+
 const renderError = (elements, value) => {
   const error = value[0];
   elements.urlInput.classList.add('is-invalid');
@@ -40,8 +42,21 @@ const renderFeeds = (elements, state, i18nInstance) => {
         'border-0',
         'border-end-0'
       );
-      li.innerHTML = `<a href="${post.link}" data-id="${post.postId}" class="fw-bold" target="_blank" rel="noopener noreferrer">${post.title}</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+      li.innerHTML = `<a href="${post.link}" data-id="${post.postId}" target="_blank" rel="noopener noreferrer">${post.title}</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+      const classesToAdd = state.uiState.modal.includes(post.link)
+        ? ['fw-normal', 'link-secondary']
+        : ['fw-bold'];
+      const link = li.querySelector('a');
+      link.classList.add(...classesToAdd);
       postsListGroup.append(li);
+
+      const button = li.querySelector('[data-bs-toggle="modal"]');
+      button.addEventListener('click', () => {
+        elements.modalTitle.textContent = post.title;
+        elements.modalDescription.textContent = post.description;
+        elements.modalLink.setAttribute('href', post.link);
+        state.uiState.modal = [...state.uiState.modal, post.link];
+      });
     });
 
     const li = document.createElement('li');
@@ -52,14 +67,15 @@ const renderFeeds = (elements, state, i18nInstance) => {
   // /feeds
 };
 
-const render = (state, elements, i18nInstance) => (path, value) => {
+const render = (state, elements, i18nInstance, path, value) => {
   switch (path) {
     case 'form.errors': {
       renderError(elements, value);
       break;
     }
     case 'feeds':
-    case 'posts': {
+    case 'posts':
+    case 'uiState.modal': {
       renderFeeds(elements, state, i18nInstance);
       break;
     }
