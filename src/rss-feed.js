@@ -1,4 +1,4 @@
-/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements"] }] */
+/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements", "watchedState"] }] */
 
 import _ from 'lodash';
 import onChange from 'on-change';
@@ -11,15 +11,16 @@ import parse from './rssparser.js';
 
 // https://lorem-rss.herokuapp.com/feed?unit=second&interval=10
 
-const defaultLanguage = 'ru';
-
+// Строитель url
 const buildUrl = (url) =>
-  `https://allorigins.hexlet.app/get?disableCache=true&url=${url}`;
+  `https://allorigins.hexlet.app/get?disableCache=true&url=
+  ${encodeURIComponent(url)}`;
 
-const createFeed = (data, i18nInstance, url) => {
+// Строитель фидов и постов
+const createContent = (data, url) => {
   const parsedData = parse(data.data.contents);
   const errorNode = parsedData.querySelector('parsererror');
-  if (errorNode) throw new Error(i18nInstance.t('errors.parseError'));
+  if (errorNode) throw new Error('errors.parseError');
 
   const title = parsedData.querySelector('channel > title').textContent;
   const description = parsedData.querySelector(
@@ -41,27 +42,28 @@ const createFeed = (data, i18nInstance, url) => {
   return [feed, posts];
 };
 
-const updatePosts = (state, i18nInstance) => {
-  if (state.feeds.length === 0) {
+// Обновляем список постов каждые 5 секунд
+const updatePosts = (state) => {
+  if (state.content.feeds.length === 0) {
     setTimeout(() => {
-      updatePosts(state, i18nInstance);
+      updatePosts(state);
     }, 5000);
     return;
   }
-  const feeds = state.feeds.map((feed) => feed);
-  const promises = feeds.map((feed) => {
-    return axios
+
+  const promises = state.content.feeds.map((feed) =>
+    axios
       .get(buildUrl(feed.url))
       .then((response) => {
         const parsedData = parse(response.data.contents);
         const errorNode = parsedData.querySelector('parsererror');
-        if (errorNode) throw new Error(i18nInstance.t('errors.parseError'));
+        if (errorNode) throw new Error('errors.parseError');
         return parsedData;
       })
-      .then((parsedData) => {
-        const posts = [...parsedData.querySelectorAll('item')].map((item) => {
-          const postLink = item.querySelector('link').textContent;
+      .then((parsedData) =>
+        [...parsedData.querySelectorAll('item')].map((item) => {
           const postTitle = item.querySelector('title').textContent;
+          const postLink = item.querySelector('link').textContent;
           const postDescription = item.querySelector('description').textContent;
           return {
             link: postLink,
@@ -70,29 +72,32 @@ const updatePosts = (state, i18nInstance) => {
             postId: _.uniqueId(),
             feedId: feed.id,
           };
-        });
-        return posts;
-      });
-  });
+        })
+      )
+  );
+
   const promise = Promise.all(promises);
   promise
     .then((posts) => {
-      state.posts = _.flattenDeep(posts);
+      state.content.posts = _.flattenDeep(posts);
+      state.form.process = 'renderPosts';
     })
-    .then(() =>
+    .then(() => {
       setTimeout(() => {
-        updatePosts(state, i18nInstance);
-      }, 5000)
-    )
+        updatePosts(state);
+      }, 5000);
+    })
     .catch((e) => {
       setTimeout(() => {
-        updatePosts(state, i18nInstance);
+        updatePosts(state);
       }, 5000);
       throw e;
     });
 };
 
+// Приложение
 const app = (initialState = {}) => {
+  // Элементы
   const elements = {
     form: document.querySelector('.rss-form'),
     feedback: document.querySelector('.feedback'),
@@ -104,60 +109,78 @@ const app = (initialState = {}) => {
     modalLink: document.querySelector('.full-article'),
   };
 
+  // Состояние
   const state = {
-    lng: defaultLanguage,
     form: {
-      valid: true,
-      errors: [],
+      process: '',
+      error: [],
     },
-    feeds: [],
-    posts: [],
+    content: {
+      feeds: [],
+      posts: [],
+    },
     uiState: {
-      modal: [],
+      modal: {
+        visitedLinks: [],
+      },
     },
     ...initialState,
   };
 
+  // Инициализация i18n
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
-    lng: state.lng,
+    lng: 'ru',
     debug: false,
     resources: {
       ru,
     },
   });
 
-  elements.form.focus();
-
-  const watchedState = onChange(state, (path, value) => {
-    render(watchedState, elements, i18nInstance, path, value);
+  // Создание watchedState
+  const watchedState = onChange(state, () => {
+    render(watchedState, elements, i18nInstance);
   });
 
+  // Обработчик на форму
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(elements.form);
     const url = formData.get('url');
 
     validate(url, state)
-      .then((result) => axios.get(buildUrl(result)))
-      .then((response) => createFeed(response, i18nInstance, url))
+      .then((result) => {
+        watchedState.form.process = 'sending';
+        return result;
+      })
+      .then((link) => axios.get(buildUrl(link)))
+      .then((response) => createContent(response, url))
       .then((createdFeed) => {
-        state.form.errors = [];
-        state.form.valid = true;
+        watchedState.form.error = [];
         const [feed, posts] = createdFeed;
-        state.posts = [...state.posts, ...posts];
-        watchedState.feeds = [...watchedState.feeds, feed];
+        const newContent = {
+          posts: [...watchedState.content.posts, ...posts],
+          feeds: [...watchedState.content.feeds, feed],
+        };
+        watchedState.content = { ...watchedState.content, ...newContent };
+        watchedState.form.process = 'render';
       })
       .catch((error) => {
-        const err =
+        const errorMessage =
           error.message === 'Network Error'
             ? 'errors.networkError'
             : error.message;
-        state.form.valid = false;
-        watchedState.form.errors = [i18nInstance.t(err)];
+        const newForm = {
+          process: 'error',
+          error: [i18nInstance.t(errorMessage)],
+        };
+        watchedState.form = newForm;
       });
   });
-  updatePosts(watchedState, i18nInstance);
+
+  // Фокус на форме и запуск обновления списка постов
+  elements.form.focus();
+  updatePosts(watchedState);
 };
 
 export default app;

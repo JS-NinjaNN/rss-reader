@@ -6,7 +6,7 @@ yup.setLocale({
 });
 
 const buildSchema = (data) => {
-  const links = data.feeds.map(({ url }) => url);
+  const links = data.content.feeds.map(({ url }) => url);
   return yup.string().trim().required().url().notOneOf(links);
 };
 const validate = (url, data) => buildSchema(data).validate(url);
