@@ -9,12 +9,14 @@ import validate from './validator.js';
 import render from './view.js';
 import parse from './rssparser.js';
 
-// https://lorem-rss.herokuapp.com/feed?unit=second&interval=10
+// https://lorem-rss.herokuapp.com/feed?unit=second&interval=5
 
 // Строитель url
-const buildUrl = (url) =>
-  `https://allorigins.hexlet.app/get?disableCache=true&url=
-  ${encodeURIComponent(url)}`;
+const buildUrl = (url) => {
+  const newUrl = new URL(url);
+  return `https://allorigins.hexlet.app/get?disableCache=true&url=
+  ${encodeURIComponent(newUrl)}`;
+};
 
 // Строитель фидов и постов
 const createContent = (data, url) => {
