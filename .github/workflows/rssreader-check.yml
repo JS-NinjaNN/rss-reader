@@ -1,4 +1,4 @@
-name: rss-editor-check
+name: rss-reader-check
 
 on:
   - push
@@ -7,11 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x]
-    
+
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -25,5 +25,4 @@ jobs:
         env:
           CI: true
       - name: Run linter
-        run:
-          make lint
+        run: make lint
