@@ -13,8 +13,10 @@ import parse from './rssparser.js';
 
 // Строитель url
 const buildUrl = (url) => {
-  return `https://allorigins.hexlet.app/get?disableCache=true&url=
+  const proxifiedUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=
   ${url}`;
+  console.log(proxifiedUrl);
+  return proxifiedUrl;
 };
 
 // Строитель фидов и постов
