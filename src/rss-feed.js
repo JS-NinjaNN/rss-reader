@@ -13,9 +13,8 @@ import parse from './rssparser.js';
 
 // Строитель url
 const buildUrl = (url) => {
-  const newUrl = new URL(url);
   return `https://allorigins.hexlet.app/get?disableCache=true&url=
-  ${newUrl}`;
+  ${url}`;
 };
 
 // Строитель фидов и постов
@@ -93,7 +92,6 @@ const updatePosts = (state) => {
       setTimeout(() => {
         updatePosts(state);
       }, 5000);
-      throw e;
     });
 };
 
