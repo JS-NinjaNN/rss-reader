@@ -15,7 +15,7 @@ import parse from './rssparser.js';
 const buildUrl = (url) => {
   const newUrl = new URL(url);
   return `https://allorigins.hexlet.app/get?disableCache=true&url=
-  ${encodeURIComponent(newUrl)}`;
+  ${encodeURI(newUrl)}`;
 };
 
 // Строитель фидов и постов
@@ -168,6 +168,7 @@ const app = (initialState = {}) => {
         watchedState.form.process = 'render';
       })
       .catch((error) => {
+        console.log(error);
         const errorMessage =
           error.message === 'Network Error'
             ? 'errors.networkError'
