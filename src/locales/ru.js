@@ -7,6 +7,8 @@ export default {
       parseError: 'Ресурс не содержит валидный RSS',
       mustNotBeEmpty: 'Не должно быть пустым',
       networkError: 'Ошибка сети',
+      updateError:
+        'Произошла ошибка при обновлении списка постов<br>Через 5 секунд повторим попытку...',
     },
     elements: {
       view: 'Просмотр',
