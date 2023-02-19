@@ -48,10 +48,10 @@ const createContent = (data, url) => {
 };
 
 // Обновляем список постов каждые 5 секунд
-const updatePosts = (state) => {
+const updatePosts = (state, i18nInstance) => {
   if (state.content.feeds.length === 0) {
     setTimeout(() => {
-      updatePosts(state);
+      updatePosts(state, i18nInstance);
     }, 5000);
     return;
   }
@@ -84,13 +84,18 @@ const updatePosts = (state) => {
     })
     .then(() => {
       setTimeout(() => {
-        updatePosts(state);
+        updatePosts(state, i18nInstance);
       }, 5000);
     })
     .catch(() => {
       setTimeout(() => {
-        updatePosts(state);
+        updatePosts(state, i18nInstance);
       }, 5000);
+      const newForm = {
+        process: 'error',
+        error: [i18nInstance.t('errors.updateError')],
+      };
+      state.form = newForm;
     });
 };
 
@@ -178,7 +183,7 @@ const app = (initialState = {}) => {
 
   // Фокус на форме и запуск обновления списка постов
   elements.form.focus();
-  updatePosts(watchedState);
+  updatePosts(watchedState, i18nInstance);
 };
 
 export default app;
