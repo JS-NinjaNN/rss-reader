@@ -13,10 +13,15 @@ import parse from './rssparser.js';
 
 // Строитель url
 const buildUrl = (url) => {
-  const proxifiedUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=
-  ${url}`;
-  console.log(proxifiedUrl);
-  return proxifiedUrl;
+  const allOriginsLink = 'https://allorigins.hexlet.app/get';
+  const preparedURL = new URL(allOriginsLink);
+  preparedURL.searchParams.set('disableCache', 'true');
+  preparedURL.searchParams.set('url', url);
+  return preparedURL;
+  // const proxifiedUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=
+  // ${url}`;
+  // console.log(proxifiedUrl);
+  // return proxifiedUrl;
 };
 
 // Строитель фидов и постов
