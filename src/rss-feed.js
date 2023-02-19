@@ -1,4 +1,5 @@
-/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements", "watchedState"] }] */
+/* eslint no-param-reassign: ["error", { "props": true,
+"ignorePropertyModificationsFor": ["state", "elements", "watchedState"] }] */
 
 import _ from 'lodash';
 import onChange from 'on-change';
@@ -18,10 +19,6 @@ const buildUrl = (url) => {
   preparedURL.searchParams.set('disableCache', 'true');
   preparedURL.searchParams.set('url', url);
   return preparedURL;
-  // const proxifiedUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=
-  // ${url}`;
-  // console.log(proxifiedUrl);
-  // return proxifiedUrl;
 };
 
 // Строитель фидов и постов
@@ -31,10 +28,10 @@ const createContent = (data, url) => {
   if (errorNode) throw new Error('errors.parseError');
 
   const title = parsedData.querySelector('channel > title').textContent;
-  const description = parsedData.querySelector(
-    'channel > description'
-  ).textContent;
-  const feed = { title, description, id: _.uniqueId(), url };
+  const description = parsedData.querySelector('channel > description').textContent;
+  const feed = {
+    title, description, id: _.uniqueId(), url,
+  };
   const posts = [...parsedData.querySelectorAll('item')].map((item) => {
     const postLink = item.querySelector('link').textContent;
     const postTitle = item.querySelector('title').textContent;
@@ -59,30 +56,25 @@ const updatePosts = (state) => {
     return;
   }
 
-  const promises = state.content.feeds.map((feed) =>
-    axios
-      .get(buildUrl(feed.url))
-      .then((response) => {
-        const parsedData = parse(response.data.contents);
-        const errorNode = parsedData.querySelector('parsererror');
-        if (errorNode) throw new Error('errors.parseError');
-        return parsedData;
-      })
-      .then((parsedData) =>
-        [...parsedData.querySelectorAll('item')].map((item) => {
-          const postTitle = item.querySelector('title').textContent;
-          const postLink = item.querySelector('link').textContent;
-          const postDescription = item.querySelector('description').textContent;
-          return {
-            link: postLink,
-            title: postTitle,
-            description: postDescription,
-            postId: _.uniqueId(),
-            feedId: feed.id,
-          };
-        })
-      )
-  );
+  const promises = state.content.feeds.map((feed) => axios.get(buildUrl(feed.url))
+    .then((response) => {
+      const parsedData = parse(response.data.contents);
+      const errorNode = parsedData.querySelector('parsererror');
+      if (errorNode) throw new Error('errors.parseError');
+      return parsedData;
+    })
+    .then((parsedData) => [...parsedData.querySelectorAll('item')].map((item) => {
+      const postTitle = item.querySelector('title').textContent;
+      const postLink = item.querySelector('link').textContent;
+      const postDescription = item.querySelector('description').textContent;
+      return {
+        link: postLink,
+        title: postTitle,
+        description: postDescription,
+        postId: _.uniqueId(),
+        feedId: feed.id,
+      };
+    })));
 
   const promise = Promise.all(promises);
   promise
@@ -173,10 +165,9 @@ const app = (initialState = {}) => {
         watchedState.form.process = 'render';
       })
       .catch((error) => {
-        const errorMessage =
-          error.message === 'Network Error'
-            ? 'errors.networkError'
-            : error.message;
+        const errorMessage = error.message === 'Network Error'
+          ? 'errors.networkError'
+          : error.message;
         const newForm = {
           process: 'error',
           error: [i18nInstance.t(errorMessage)],

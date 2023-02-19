@@ -1,5 +1,5 @@
-/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state", "elements"] }] */
-
+/* eslint no-param-reassign: ["error", { "props": true,
+"ignorePropertyModificationsFor": ["state", "elements"] }] */
 // Блокировщик кнопки на время http запроса
 const switchBlockButton = (disable = false) => {
   const submitButton = document.querySelector('[aria-label="add"]');
@@ -27,8 +27,7 @@ const renderFeeds = (elements, state, i18nInstance) => {
   const { feedsContainer } = elements;
   feedsContainer.innerHTML = '';
 
-  feedsContainer.innerHTML =
-    '<div class="card border-0"><div class="card-body"><h2 class="card-title h4">Фиды</h2></div><ul class="list-group border-0 rounded-0"></ul></div>';
+  feedsContainer.innerHTML = '<div class="card border-0"><div class="card-body"><h2 class="card-title h4">Фиды</h2></div><ul class="list-group border-0 rounded-0"></ul></div>';
   const feedsListGroup = feedsContainer.querySelector('.list-group');
   state.content.feeds.forEach((feed) => {
     const li = document.createElement('li');
@@ -43,13 +42,12 @@ const renderPosts = (elements, state, i18nInstance) => {
   const { postsContainer } = elements;
   postsContainer.innerHTML = '';
 
-  postsContainer.innerHTML =
-    '<div class="card border-0"><div class="card-body"><h2 class="card-title h4">Посты</h2></div><ul class="list-group border-0 rounded-0"></ul></div>';
+  postsContainer.innerHTML = '<div class="card border-0"><div class="card-body"><h2 class="card-title h4">Посты</h2></div><ul class="list-group border-0 rounded-0"></ul></div>';
   const postsListGroup = postsContainer.querySelector('.list-group');
   state.content.feeds.forEach((feed) => {
     const currentFeedId = feed.id;
     const posts = state.content.posts.filter(
-      ({ feedId }) => feedId === currentFeedId
+      ({ feedId }) => feedId === currentFeedId,
     );
     posts.forEach((post) => {
       const li = document.createElement('li');
@@ -60,16 +58,10 @@ const renderPosts = (elements, state, i18nInstance) => {
         'justify-content-between',
         'align-items-start',
         'border-0',
-        'border-end-0'
+        'border-end-0',
       );
 
-      li.innerHTML = `<a href="${post.link}" data-id="${
-        post.postId
-      }" target="_blank" rel="noopener noreferrer">${
-        post.title
-      }</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">${i18nInstance.t(
-        'elements.view'
-      )}</button>`;
+      li.innerHTML = `<a href="${post.link}" data-id="${post.postId}" target="_blank" rel="noopener noreferrer">${post.title}</a><button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">${i18nInstance.t('elements.view')}</button>`;
       const link = li.querySelector('a');
       const classesToAdd = state.uiState.modal.visitedLinks.includes(post.link)
         ? ['fw-normal', 'link-secondary']
