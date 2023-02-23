@@ -1,189 +1,164 @@
 /* eslint no-param-reassign: ["error", { "props": true,
 "ignorePropertyModificationsFor": ["state", "elements", "watchedState"] }] */
 
-import _ from 'lodash';
+import './styles.scss';
+import 'bootstrap';
+import { setLocale, string } from 'yup';
+import { uniqueId } from 'lodash';
 import onChange from 'on-change';
 import i18n from 'i18next';
 import axios from 'axios';
+
 import ru from './locales/ru.js';
-import validate from './validator.js';
 import render from './view.js';
 import parse from './rssparser.js';
 
+const timeout = 5000;
+
+// rss для тестирования
 // https://lorem-rss.herokuapp.com/feed?unit=second&interval=5
 
-// Строитель url
-const buildUrl = (url) => {
+// Валидатор
+const validate = (url, links) => {
+  const schema = string().trim().required().url()
+    .notOneOf(links);
+  return schema.validate(url);
+};
+
+// Запрос
+const enquire = (url) => {
   const allOriginsLink = 'https://allorigins.hexlet.app/get';
   const preparedURL = new URL(allOriginsLink);
   preparedURL.searchParams.set('disableCache', 'true');
   preparedURL.searchParams.set('url', url);
-  return preparedURL;
+  return axios.get(preparedURL);
 };
 
-// Строитель фидов и постов
-const createContent = (data, url) => {
-  const parsedData = parse(data.data.contents);
-  const errorNode = parsedData.querySelector('parsererror');
-  if (errorNode) throw new Error('errors.parseError');
+const addFeeds = (id, feed, link, state) => {
+  state.content.feeds.push({ ...feed, id, link });
+};
 
-  const title = parsedData.querySelector('channel > title').textContent;
-  const description = parsedData.querySelector('channel > description').textContent;
-  const feed = {
-    title, description, id: _.uniqueId(), url,
+const addPosts = (feedId, posts, state) => {
+  const preparedPosts = posts.map((post) => ({ ...post, feedId, id: uniqueId() }));
+  state.content.posts = [...state.content.posts, ...preparedPosts];
+};
+
+const postsUpdate = (currentFeedId, state) => {
+  const update = () => {
+    const currentFeedLink = state.content.feeds.find(({ id }) => id === currentFeedId).link;
+
+    enquire(currentFeedLink)
+      .then((response) => {
+        const { posts } = parse(response.data.contents);
+        const addedPostsLinks = state.content.posts
+          .filter(({ feedId }) => feedId === currentFeedId)
+          .map(({ link }) => link);
+        const newPosts = posts.filter(({ link }) => !addedPostsLinks.includes(link));
+        if (newPosts.length > 0) {
+          addPosts(currentFeedId, newPosts, state);
+        }
+      })
+      .catch((e) => {
+        throw e;
+      })
+      .finally(() => {
+        setTimeout(update, timeout);
+      });
   };
-  const posts = [...parsedData.querySelectorAll('item')].map((item) => {
-    const postLink = item.querySelector('link').textContent;
-    const postTitle = item.querySelector('title').textContent;
-    const postDescription = item.querySelector('description').textContent;
-    return {
-      link: postLink,
-      title: postTitle,
-      description: postDescription,
-      postId: _.uniqueId(),
-      feedId: feed.id,
-    };
-  });
-  return [feed, posts];
-};
-
-// Обновляем список постов каждые 5 секунд
-const updatePosts = (state, i18nInstance) => {
-  if (state.content.feeds.length === 0) {
-    setTimeout(() => {
-      updatePosts(state, i18nInstance);
-    }, 5000);
-    return;
-  }
-
-  const promises = state.content.feeds.map((feed) => axios.get(buildUrl(feed.url))
-    .then((response) => {
-      const parsedData = parse(response.data.contents);
-      const errorNode = parsedData.querySelector('parsererror');
-      if (errorNode) throw new Error('errors.parseError');
-      return parsedData;
-    })
-    .then((parsedData) => [...parsedData.querySelectorAll('item')].map((item) => {
-      const postTitle = item.querySelector('title').textContent;
-      const postLink = item.querySelector('link').textContent;
-      const postDescription = item.querySelector('description').textContent;
-      return {
-        link: postLink,
-        title: postTitle,
-        description: postDescription,
-        postId: _.uniqueId(),
-        feedId: feed.id,
-      };
-    })));
-
-  const promise = Promise.all(promises);
-  promise
-    .then((posts) => {
-      state.content.posts = _.flattenDeep(posts);
-      state.form.process = 'renderPosts';
-    })
-    .then(() => {
-      setTimeout(() => {
-        updatePosts(state, i18nInstance);
-      }, 5000);
-    })
-    .catch(() => {
-      setTimeout(() => {
-        updatePosts(state, i18nInstance);
-      }, 5000);
-      const newForm = {
-        process: 'error',
-        error: [i18nInstance.t('errors.updateError')],
-      };
-      state.form = newForm;
-    });
+  setTimeout(update, timeout);
 };
 
 // Приложение
-const app = (initialState = {}) => {
-  // Элементы
-  const elements = {
-    form: document.querySelector('.rss-form'),
-    feedback: document.querySelector('.feedback'),
-    urlInput: document.querySelector('#url-input'),
-    postsContainer: document.querySelector('.posts'),
-    feedsContainer: document.querySelector('.feeds'),
-    modalTitle: document.querySelector('.modal-title'),
-    modalDescription: document.querySelector('.text-break'),
-    modalLink: document.querySelector('.full-article'),
-  };
-
-  // Состояние
-  const state = {
-    form: {
-      process: '',
-      error: [],
-    },
-    content: {
-      feeds: [],
-      posts: [],
-    },
-    uiState: {
-      modal: {
-        visitedLinks: [],
-      },
-    },
-    ...initialState,
-  };
-
-  // Инициализация i18n
+const app = () => {
   const i18nInstance = i18n.createInstance();
+
   i18nInstance.init({
     lng: 'ru',
     debug: false,
     resources: {
       ru,
     },
+  }).then((translate) => {
+    // Элементы
+    const elements = {
+      form: document.querySelector('.rss-form'),
+      feedback: document.querySelector('.feedback'),
+      input: document.querySelector('#url-input'),
+      btn: document.querySelector('button[type="submit"]'),
+      posts: document.querySelector('.posts'),
+      feeds: document.querySelector('.feeds'),
+      modal: {
+        modalElement: document.querySelector('.modal'),
+        title: document.querySelector('.modal-title'),
+        body: document.querySelector('.modal-body'),
+        btn: document.querySelector('.full-article'),
+      },
+    };
+
+    setLocale({
+      mixed: { notOneOf: 'alreadyAddedRSS' },
+      string: { url: 'invalidUrl', required: 'mustNotBeEmpty' },
+    });
+
+    // Состояние
+    const initialState = {
+      process: {
+        state: 'filling',
+        error: null,
+      },
+      content: {
+        feeds: [],
+        posts: [],
+      },
+      uiState: {
+        visitedLinksIds: new Set(),
+        modalPostId: null,
+      },
+    };
+
+    const watchedState = onChange(initialState, render(initialState, elements, translate));
+
+    elements.form.focus();
+    elements.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(elements.form);
+      const url = formData.get('url');
+      const addedLinks = watchedState.content.feeds.map(({ link }) => link);
+
+      validate(url, addedLinks)
+        .then((link) => {
+          watchedState.process.state = 'sending';
+          return enquire(link);
+        })
+        .then((response) => {
+          const parsedData = parse(response.data.contents);
+          const feedId = uniqueId();
+
+          addFeeds(feedId, parsedData.feed, url, watchedState);
+          addPosts(feedId, parsedData.posts, watchedState);
+          postsUpdate(feedId, watchedState);
+          watchedState.process.state = 'finished';
+        })
+        .catch((error) => {
+          const errorMessage = error.message ?? 'defaultError';
+          watchedState.process.error = errorMessage;
+          watchedState.process.state = 'error';
+        });
+    });
+
+    elements.modal.modalElement.addEventListener('show.bs.modal', (e) => {
+      const postId = e.relatedTarget.getAttribute('data-id');
+      watchedState.uiState.visitedLinksIds.add(postId);
+      watchedState.uiState.modalPostId = postId;
+    });
+
+    elements.posts.addEventListener('click', (e) => {
+      const postId = e.target.dataset.id;
+      if (postId) {
+        watchedState.uiState.visitedLinksIds.add(postId);
+      }
+    });
   });
-
-  // Создание watchedState
-  const watchedState = onChange(state, () => {
-    render(watchedState, elements, i18nInstance);
-  });
-
-  // Обработчик на форму
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(elements.form);
-    const url = formData.get('url');
-
-    validate(url, state)
-      .then((result) => {
-        watchedState.form.process = 'sending';
-        return result;
-      })
-      .then((link) => axios.get(buildUrl(link)))
-      .then((response) => createContent(response, url))
-      .then((createdFeed) => {
-        watchedState.form.error = [];
-        const [feed, posts] = createdFeed;
-        const newContent = {
-          posts: [...watchedState.content.posts, ...posts],
-          feeds: [...watchedState.content.feeds, feed],
-        };
-        watchedState.content = { ...watchedState.content, ...newContent };
-        watchedState.form.process = 'render';
-      })
-      .catch((error) => {
-        const errorMessage = error.message === 'Network Error'
-          ? 'errors.networkError'
-          : error.message;
-        const newForm = {
-          process: 'error',
-          error: [i18nInstance.t(errorMessage)],
-        };
-        watchedState.form = newForm;
-      });
-  });
-
-  // Фокус на форме и запуск обновления списка постов
-  elements.form.focus();
-  updatePosts(watchedState, i18nInstance);
 };
 
 export default app;
