@@ -71,7 +71,7 @@ const postsUpdate = (currentFeedId, state) => {
 // Приложение
 const app = () => {
   const i18nInstance = i18n.createInstance();
-
+  // Инициализация
   i18nInstance.init({
     lng: 'ru',
     debug: false,
