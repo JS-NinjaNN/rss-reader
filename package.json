@@ -2,21 +2,21 @@
   "name": "@hexlet/code",
   "type": "module",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/JS-Samurai/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/JS-Samurai/frontend-project-11/actions)",
+  "description": "rss-editor is a service for aggregating RSS feeds that makes it easy to read a variety of sources, such as blogs. It allows you to add an unlimited number of RSS feeds, updates them and adds new entries to the total stream.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JS-Samurai/frontend-project-11.git"
+    "url": "git+https://github.com/JS-NinjaNN/frontend-project-11.git"
   },
-  "author": "JS-Samurai",
+  "author": "JS-NinjaNN",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/JS-Samurai/frontend-project-11/issues"
+    "url": "https://github.com/JS-NinjaNN/frontend-project-11/issues"
   },
-  "homepage": "https://github.com/JS-Samurai/frontend-project-11#readme",
+  "homepage": "https://github.com/JS-NinjaNN/frontend-project-11#readme",
   "devDependencies": {
     "css-loader": "^6.7.3",
     "eslint": "^8.33.0",
