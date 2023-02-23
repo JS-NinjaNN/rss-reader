@@ -21,7 +21,7 @@
 --- | --- | --- | --- | --- | --- |
 Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 11 ✔ |
 
-## установка для разработчиков:
+## Установка для разработчиков:
 1. Клонируйте репозиторий с помощью следующей команды:
 ```sh 
 git clone https://github.com/JS-NinjaNN/frontend-project-11
