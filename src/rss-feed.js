@@ -26,7 +26,7 @@ const validate = (url, links) => {
 };
 
 // Запрос
-const enquire = (url) => {
+const getAxiosResponse = (url) => {
   const allOriginsLink = 'https://allorigins.hexlet.app/get';
   const preparedURL = new URL(allOriginsLink);
   preparedURL.searchParams.set('disableCache', 'true');
@@ -43,29 +43,22 @@ const addPosts = (feedId, posts, state) => {
   state.content.posts = [...state.content.posts, ...preparedPosts];
 };
 
-const postsUpdate = (currentFeedId, state) => {
+const updatePosts = (state) => {
   const update = () => {
-    const currentFeedLink = state.content.feeds.find(({ id }) => id === currentFeedId).link;
-
-    enquire(currentFeedLink)
-      .then((response) => {
-        const { posts } = parse(response.data.contents);
-        const addedPostsLinks = state.content.posts
-          .filter(({ feedId }) => feedId === currentFeedId)
-          .map(({ link }) => link);
-        const newPosts = posts.filter(({ link }) => !addedPostsLinks.includes(link));
-        if (newPosts.length > 0) {
-          addPosts(currentFeedId, newPosts, state);
-        }
-      })
-      .catch((e) => {
-        throw e;
-      })
-      .finally(() => {
-        setTimeout(update, timeout);
-      });
+    state.content.feeds.forEach(({ link, id }) => {
+      getAxiosResponse(link)
+        .then((response) => {
+          const { posts } = parse(response.data.contents);
+          const alreadyAddedLinks = state.content.posts.map((post) => post.link);
+          const newPosts = posts.filter((post) => !alreadyAddedLinks.includes(post.link));
+          if (newPosts.length > 0) {
+            addPosts(id, newPosts, state);
+          }
+        });
+    });
+    setTimeout(update, timeout);
   };
-  setTimeout(update, timeout);
+  update();
 };
 
 // Приложение
@@ -118,6 +111,8 @@ const app = () => {
 
     const watchedState = onChange(initialState, render(initialState, elements, translate));
 
+    updatePosts(watchedState);
+
     elements.form.focus();
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -128,15 +123,15 @@ const app = () => {
       validate(url, addedLinks)
         .then((link) => {
           watchedState.process.state = 'sending';
-          return enquire(link);
+          return getAxiosResponse(link);
         })
         .then((response) => {
           const parsedData = parse(response.data.contents);
           const feedId = uniqueId();
 
+          // watchedState.content.feeds.push({ ...feed, id, link });
           addFeeds(feedId, parsedData.feed, url, watchedState);
           addPosts(feedId, parsedData.posts, watchedState);
-          postsUpdate(feedId, watchedState);
           watchedState.process.state = 'finished';
         })
         .catch((error) => {
