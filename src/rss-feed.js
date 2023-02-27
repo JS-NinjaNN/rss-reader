@@ -34,10 +34,6 @@ const getAxiosResponse = (url) => {
   return axios.get(preparedURL);
 };
 
-const addFeeds = (id, feed, link, state) => {
-  state.content.feeds.push({ ...feed, id, link });
-};
-
 const addPosts = (feedId, posts, state) => {
   const preparedPosts = posts.map((post) => ({ ...post, feedId, id: uniqueId() }));
   state.content.posts = [...state.content.posts, ...preparedPosts];
@@ -126,12 +122,12 @@ const app = () => {
           return getAxiosResponse(link);
         })
         .then((response) => {
-          const parsedData = parse(response.data.contents);
+          const { feed, posts } = parse(response.data.contents);
           const feedId = uniqueId();
 
-          // watchedState.content.feeds.push({ ...feed, id, link });
-          addFeeds(feedId, parsedData.feed, url, watchedState);
-          addPosts(feedId, parsedData.posts, watchedState);
+          watchedState.content.feeds.push({ ...feed, feedId, link: url });
+          console.log(watchedState.content.feeds);
+          addPosts(feedId, posts, watchedState);
           watchedState.process.state = 'finished';
         })
         .catch((error) => {
