@@ -128,6 +128,10 @@ const render = (state, elements, translate) => (path, value) => {
     finished: () => finishHandler(elements, state, translate),
   };
 
+  if (state.process.state === 'filling') {
+    return;
+  }
+
   switch (path) {
     case 'process.state':
       renderMapping[state.process.state]();

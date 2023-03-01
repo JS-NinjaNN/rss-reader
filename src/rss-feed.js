@@ -41,8 +41,8 @@ const addPosts = (feedId, posts, state) => {
 
 const updatePosts = (state) => {
   const update = () => {
-    state.content.feeds.forEach(({ link, id }) => {
-      getAxiosResponse(link)
+    const promises = state.content.feeds
+      .map(({ link, id }) => getAxiosResponse(link)
         .then((response) => {
           const { posts } = parse(response.data.contents);
           const alreadyAddedLinks = state.content.posts.map((post) => post.link);
@@ -50,9 +50,12 @@ const updatePosts = (state) => {
           if (newPosts.length > 0) {
             addPosts(id, newPosts, state);
           }
-        });
-    });
-    setTimeout(update, timeout);
+          return Promise.resolve();
+        }));
+    Promise.allSettled(promises)
+      .finally(() => {
+        setTimeout(update, timeout);
+      });
   };
   update();
 };
@@ -112,6 +115,8 @@ const app = () => {
     elements.form.focus();
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
+      watchedState.process.error = null;
+      watchedState.process.state = 'filling';
       const formData = new FormData(elements.form);
       const url = formData.get('url');
       const addedLinks = watchedState.content.feeds.map(({ link }) => link);
@@ -126,7 +131,6 @@ const app = () => {
           const feedId = uniqueId();
 
           watchedState.content.feeds.push({ ...feed, feedId, link: url });
-          console.log(watchedState.content.feeds);
           addPosts(feedId, posts, watchedState);
           watchedState.process.state = 'finished';
         })
