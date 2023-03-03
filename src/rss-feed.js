@@ -39,25 +39,22 @@ const addPosts = (feedId, posts, state) => {
   state.content.posts = [...state.content.posts, ...preparedPosts];
 };
 
-const updatePosts = (state) => {
-  const update = () => {
-    const promises = state.content.feeds
-      .map(({ link, id }) => getAxiosResponse(link)
-        .then((response) => {
-          const { posts } = parse(response.data.contents);
-          const alreadyAddedLinks = state.content.posts.map((post) => post.link);
-          const newPosts = posts.filter((post) => !alreadyAddedLinks.includes(post.link));
-          if (newPosts.length > 0) {
-            addPosts(id, newPosts, state);
-          }
-          return Promise.resolve();
-        }));
-    Promise.allSettled(promises)
-      .finally(() => {
-        setTimeout(update, timeout);
-      });
-  };
-  update();
+const fetchNewPosts = (state) => {
+  const promises = state.content.feeds
+    .map(({ link, id }) => getAxiosResponse(link)
+      .then((response) => {
+        const { posts } = parse(response.data.contents);
+        const alreadyAddedLinks = state.content.posts.map((post) => post.link);
+        const newPosts = posts.filter((post) => !alreadyAddedLinks.includes(post.link));
+        if (newPosts.length > 0) {
+          addPosts(id, newPosts, state);
+        }
+        return Promise.resolve();
+      }));
+  Promise.allSettled(promises)
+    .finally(() => {
+      setTimeout(() => fetchNewPosts(state), timeout);
+    });
 };
 
 // Приложение
@@ -110,7 +107,7 @@ const app = () => {
 
     const watchedState = onChange(initialState, render(initialState, elements, translate));
 
-    updatePosts(watchedState);
+    fetchNewPosts(watchedState);
 
     elements.form.focus();
     elements.form.addEventListener('submit', (e) => {
