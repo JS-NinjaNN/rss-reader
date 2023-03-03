@@ -91,7 +91,6 @@ const errorHandler = (elements, error, translate) => {
 
 // Обработчик успешного добавления поста
 const finishHandler = (elements, state, translate) => {
-  elements.input.classList.remove('is-invalid');
   elements.feedback.textContent = '';
 
   makeContainer('posts', state, elements, translate);
@@ -120,6 +119,11 @@ const openModalWindow = (elements, state, postId) => {
 // Рендер
 const render = (state, elements, translate) => (path, value) => {
   const renderMapping = {
+    filling: () => {
+      elements.feedback.classList.remove('text-danger');
+      elements.input.classList.remove('is-invalid');
+      elements.feedback.textContent = '';
+    },
     sending: () => {
       elements.btn.disabled = true;
       elements.input.disabled = true;
@@ -127,10 +131,6 @@ const render = (state, elements, translate) => (path, value) => {
     error: () => errorHandler(elements, state.process.error, translate),
     finished: () => finishHandler(elements, state, translate),
   };
-
-  if (state.process.state === 'filling') {
-    return;
-  }
 
   switch (path) {
     case 'process.state':

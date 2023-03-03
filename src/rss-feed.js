@@ -109,11 +109,14 @@ const app = () => {
 
     fetchNewPosts(watchedState);
 
+    elements.form.addEventListener('input', () => {
+      watchedState.process.error = null;
+      watchedState.process.state = 'filling';
+    });
+
     elements.form.focus();
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
-      watchedState.process.error = null;
-      watchedState.process.state = 'filling';
       const formData = new FormData(elements.form);
       const url = formData.get('url');
       const addedLinks = watchedState.content.feeds.map(({ link }) => link);
