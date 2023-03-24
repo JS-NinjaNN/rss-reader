@@ -25,9 +25,9 @@ Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 11 ✔ |
 
 ## Установка для разработчиков:
 
-##№ Minimum system requirements
+## № Minimum system requirements
 
-Node.js 13.2.0 or higher
+  Node.js 13.2.0 or higher
 
 1. Клонируйте репозиторий с помощью следующей команды:
 ```sh 
