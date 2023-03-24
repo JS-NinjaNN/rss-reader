@@ -24,6 +24,11 @@
 Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 11 ✔ |
 
 ## Установка для разработчиков:
+
+##№ Minimum system requirements
+
+Node.js 13.2.0 or higher
+
 1. Клонируйте репозиторий с помощью следующей команды:
 ```sh 
 git clone https://github.com/JS-NinjaNN/frontend-project-11
