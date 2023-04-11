@@ -4,36 +4,36 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/a091e9ce8a500ceb7ea1/maintainability)](https://codeclimate.com/github/JS-NinjaNN/frontend-project-11/maintainability)
 [![rss-reader-check](https://github.com/JS-NinjaNN/frontend-project-11/actions/workflows/rssreader-check.yml/badge.svg)](https://github.com/JS-NinjaNN/frontend-project-11/actions/workflows/rssreader-check.yml)
 
-# RSS-агрегатор
+# RSS-reader
 
-[RSS-агрегатор](https://rss-reader-liard.vercel.app/) – сервис для агрегации RSS-потоков, с помощью которых удобно читать разнообразные источники, например, блоги. Он позволяет добавлять неограниченное количество RSS-лент, сам их обновляет и добавляет новые записи в общий поток.
+[RSS-reader](https://rss-reader-liard.vercel.app/) – is a service for aggregating RSS feeds that makes it easy to read a variety of sources, such as blogs. It allows you to add an unlimited number of RSS feeds, updates them and adds new entries to the total stream.
 
-## Инструкция по использованию:
+## How to use:
 
-Перейдите по [ссылке](https://rss-reader-liard.vercel.app/)
+Follow this [link](https://rss-reader-liard.vercel.app/)
 
-Вставьте валидную RSS-ссылку в поле ввода. Нажмите кнопку «Добавить». RSS поток появится на экране!
-Предварительный просмотр описания постов выводится через модальное окно после нажатия на кнопку «Просмотр».
-Вы также можете подписываться сразу на несколько каналов, добавляя ссылки на другие источники.
-Посты обновляются автоматически в режиме реального времени. 
+Insert a valid RSS link in the input box. Click the Add button. The RSS feed will appear on your screen!
+A preview of the post descriptions is displayed through a modal window after you click the "Preview" button.
+You can also subscribe to multiple feeds at once by adding links to other sources.
+Posts are updated automatically in real time.
 
-## Поддержка браузеров:
+## Browser support:
 
 ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_48x48.png) | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_48x48.png) | ![Safari](https://raw.githubusercontent.com/alrra/browser-logos/main/src/safari/safari_48x48.png) | ![Opera](https://raw.githubusercontent.com/alrra/browser-logos/main/src/opera/opera_48x48.png) | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_48x48.png) | ![IE](https://raw.githubusercontent.com/alrra/browser-logos/master/src/archive/internet-explorer_9-11/internet-explorer_9-11_48x48.png) |
 --- | --- | --- | --- | --- | --- |
 Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 11 ✔ |
 
-## Установка для разработчиков:
+## Installation for Developers:
 
 #### Minimum system requirements
   Node.js 13.2.0 or higher
 
-1. Клонируйте репозиторий с помощью следующей команды:
+1. Clone the repository with the following command:
 ```sh 
 git clone https://github.com/JS-NinjaNN/frontend-project-11
 ```
 
-2. Установите программу чтения RSS, используя следующие команды:
+2. Set up the RSS-reader using the following commands:
 
 ```sh
 make install
@@ -42,7 +42,7 @@ make install
 ```sh
 npm link
 ```
-Скомпилируйте пакет с помощью webpack, используя:
+Compile the package with webpack using:
 
 ```sh
 make build
