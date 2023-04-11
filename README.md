@@ -33,14 +33,14 @@ Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 11 ✔ |
 git clone https://github.com/JS-NinjaNN/frontend-project-11
 ```
 
-2. Set up the RSS-reader using the following commands:
+2. Set up and run the RSS reader developer mode using the following commands:
 
 ```sh
 make install
 ```
 
 ```sh
-npm link
+make develop
 ```
 Compile the package with webpack using:
 
